@@ -1,6 +1,7 @@
 #include "SevSeg.h"
 #define BUTTON_STARTMEETING 30
-#define BUZZER 45
+#define BUZZERMEETING 45
+#define BUZZERTALKTIME 47
 #define BUTTON_STARTTALKTIME 44
 
 
@@ -24,7 +25,8 @@ bool talktimerIsStarted = false;//flag ob talktimer gestartet ist
 void setup() {
 
   pinMode(BUTTON_STARTMEETING, INPUT_PULLUP);
-  pinMode(BUZZER, OUTPUT);
+  pinMode(BUZZERMEETING, OUTPUT);
+  pinMode(BUZZERTALKTIME, OUTPUT);
   pinMode(BUTTON_STARTTALKTIME, INPUT_PULLUP);
   
   
@@ -88,9 +90,9 @@ void loop() {
     {
       timerIsStarted = false;
       meetingDisplay.setNumber(0,2);
-      tone(BUZZER, 1000);
+      tone(BUZZERMEETING, 1000);
       delay(1000);
-      noTone(BUZZER);
+      noTone(BUZZERMEETING);
       
     }
    if(talktimerIsStarted)
@@ -110,6 +112,10 @@ void loop() {
       {
         talktimerIsStarted = false;
         talktimeDisplay.setNumber(0);
+        tone(BUZZERTALKTIME, 100);
+        delay(1000);
+        noTone(BUZZERTALKTIME);
+        
       }
     }
     meetingDisplay.refreshDisplay();
@@ -123,3 +129,7 @@ bool isStartButtonPressed() {
 bool isTalkTimeButtonPressed(){
   return digitalRead(BUTTON_STARTTALKTIME) == 0;
 }
+
+
+
+ 
