@@ -12,6 +12,7 @@ SevSeg talktimeDisplay;
 long Startwert = 1500000;//Startwert des Timers
 long talkTime = 300000;//maximale Redezeit
 long StartValueInSeconds = 900; //15min
+long TalkTimeStartValueInSeconds = 180;
 
 long startpunkt = 0;//Speicher des aktuellen Milli-Wertes
 long talkTimeStart= 0;//Speicher des aktuellen Milli-Wertes
@@ -59,6 +60,7 @@ void loop() {
     timerIsStarted = true;
     startpunkt = millis();//speichern des aktuellen Milli-Wertes  
   }
+  
 
   if (timerIsStarted && isTalkTimeButtonPressed())//Starten der TalkTime nur möglich wenn timerIsStarted
   {
@@ -67,23 +69,20 @@ void loop() {
   }
   
   
-  if (timerIsStarted)
+  if(timerIsStarted)
   {
-    talktimeDisplay.setNumber(3);
     
-    long durationMeeting = millis() - startpunkt;//dauer des Meetings ergibt sich aus dem Milliwert minus startpunkt
-    
-    
-    int restTimeInSeconds = StartValueInSeconds - (durationMeeting / 1000);//übrige Zeit ist der Startwert minus der aktuellen Meetingdauer
+    long meetingDurationInSeconds = (millis() - startpunkt) / 1000;//dauer des Meetings ergibt sich aus dem Milliwert minus startpunkt
+     
+    int restTimeInSeconds = StartValueInSeconds - meetingDurationInSeconds;//übrige Zeit ist der Startwert minus der aktuellen Meetingdauer
 
     long seconds = restTimeInSeconds % 60;
      
     long minutes = restTimeInSeconds / 60;
 
-    if(durationMeeting % 1000 <= 1)
-    {
-      meetingDisplay.setNumber(minutes * 100 + seconds, 2);
-    }
+    
+    meetingDisplay.setNumber(minutes * 100 + seconds, 2);
+    
    
     if(restTimeInSeconds <= 0) 
     {
@@ -94,44 +93,28 @@ void loop() {
       noTone(BUZZER);
       
     }
+   if(talktimerIsStarted)
+      {
+      long durationTalkTimeInSeconds = (millis() - talkTimeStart) / 1000;
 
-    if (talktimerIsStarted)
-    {
-      long durationTalkTime = millis() - talkTimeStart;
-      Serial.println("durationtalkTime:");
-      Serial.println(durationTalkTime);
+      int TalkTimerestTimeInSeconds = TalkTimeStartValueInSeconds - durationTalkTimeInSeconds;
+
+      long TalkTimeMinutes = TalkTimerestTimeInSeconds / 60;
+
       
-      int restTalkTime = (talkTime - durationTalkTime) / 100000;
-      Serial.println("restTalkTime");
-      Serial.println(restTalkTime);
-
-      if(restTalkTime % 100 && restTalkTime > 0)
-      {
-        talkTime -= 41000;
-        restTalkTime -= 41;
-        Serial.println("talkTime:");
-        Serial.println(talkTime);
-      }
-    
-      if(durationTalkTime % 1000 <=1)
-      {
-      Serial.println("restTalkTime");
-      Serial.println( restTalkTime);
-      talktimeDisplay.setNumber(restTalkTime);
+      talktimeDisplay.setNumber(TalkTimeMinutes + 1);
+        
       
-      }
 
-      if(restTalkTime <= 0)
+      if(TalkTimerestTimeInSeconds <= 0)
       {
-      talktimerIsStarted = false;
-      talktimeDisplay.setNumber(0);
+        talktimerIsStarted = false;
+        talktimeDisplay.setNumber(0);
       }
-   }
-    
-
+    }
+    meetingDisplay.refreshDisplay();
+    talktimeDisplay.refreshDisplay();
   }
-  meetingDisplay.refreshDisplay();
-  talktimeDisplay.refreshDisplay();
 }
 
 bool isStartButtonPressed() {
@@ -140,7 +123,3 @@ bool isStartButtonPressed() {
 bool isTalkTimeButtonPressed(){
   return digitalRead(BUTTON_STARTTALKTIME) == 0;
 }
-
-
-
- 
