@@ -3,6 +3,7 @@
 #define BUZZERMEETING 45
 #define BUZZERTALKTIME 47
 #define BUTTON_STARTTALKTIME 44
+#define BUTTON_RESET 48
 
 
 
@@ -10,15 +11,17 @@ SevSeg meetingDisplay;
 SevSeg talktimeDisplay;
 
 
-long Startwert = 1500000;//Startwert des Timers
+//long Startwert = //1500000;//Startwert des Timers
 long talkTime = 300000;//maximale Redezeit
-long StartValueInSeconds = 900; //15min
-long TalkTimeStartValueInSeconds = 180;
+long StartValueInSeconds = 60; //900; //15min
+long TalkTimeStartValueInSeconds = 30; //180;
 
 long startpunkt = 0;//Speicher des aktuellen Milli-Wertes
 long talkTimeStart= 0;//Speicher des aktuellen Milli-Wertes
 bool timerIsStarted = false;//flag ob Timer gestartet
 bool talktimerIsStarted = false;//flag ob talktimer gestartet ist
+
+
 
 
 
@@ -28,6 +31,7 @@ void setup() {
   pinMode(BUZZERMEETING, OUTPUT);
   pinMode(BUZZERTALKTIME, OUTPUT);
   pinMode(BUTTON_STARTTALKTIME, INPUT_PULLUP);
+  pinMode(BUTTON_RESET, INPUT_PULLUP);
   
   
  //Setup MeetingTimer 
@@ -46,16 +50,21 @@ void setup() {
   talktimeDisplay.setBrightness(90);
   
   Serial.begin(9600);
+
   
-  //Startanzeige
-  meetingDisplay.setNumber(Startwert/1000,2);
-  talktimeDisplay.setNumber(3);
-  meetingDisplay.refreshDisplay();
-  talktimeDisplay.refreshDisplay();
+ 
 }
  
 
 void loop() {
+
+  if(isResetButtonPressed())
+  {
+    timerIsStarted = false;
+    talktimerIsStarted = false;
+    meetingDisplay.blank();
+    talktimeDisplay.blank();
+  }
 
   if (!timerIsStarted && isStartButtonPressed())
   {
@@ -69,8 +78,7 @@ void loop() {
     talktimerIsStarted = true;
     talkTimeStart = millis();//speichern des aktuellen Milli-Wertes    
   }
-  
-  
+
   if(timerIsStarted)
   {
     
@@ -121,6 +129,7 @@ void loop() {
     meetingDisplay.refreshDisplay();
     talktimeDisplay.refreshDisplay();
   }
+  
 }
 
 bool isStartButtonPressed() {
@@ -129,7 +138,6 @@ bool isStartButtonPressed() {
 bool isTalkTimeButtonPressed(){
   return digitalRead(BUTTON_STARTTALKTIME) == 0;
 }
-
-
-
- 
+bool isResetButtonPressed(){
+  return digitalRead(BUTTON_RESET) == 0;
+}
